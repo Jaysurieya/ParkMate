@@ -87,7 +87,7 @@ export const Details = () => {
                     </Step>
                     <Step onContinue={() => {
                         navigate('/dashboard')
-                        return true; // Allow continuation
+                        return true; 
                         }}>
                         <div className="step-content">
                             <h3>Enter Parking slots in each floor </h3>

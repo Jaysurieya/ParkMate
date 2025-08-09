@@ -62,9 +62,14 @@ export default function Stepper({
     // Special handling for last step
     const currentStepComponent = stepsArray[currentStep - 1];
     if (currentStepComponent.props.onContinue) {
-      currentStepComponent.props.onContinue();
+      const shouldContinue = currentStepComponent.props.onContinue();
+      if (shouldContinue !== false) { // Only proceed if not false
+        updateStep(totalSteps + 1); // Mark as completed
+      }
+    } else {
+      updateStep(totalSteps + 1); // Mark as completed if no onContinue
     }
-    updateStep(totalSteps + 1); // Mark as completed
+    setDirection(1);
   }
 };
 

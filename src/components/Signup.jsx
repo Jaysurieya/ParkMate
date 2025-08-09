@@ -77,6 +77,8 @@ function Signup() {
       setTimeout(() => {
         setShowSuccess(false);
       }, 1000);
+
+      navigate('/details');
   
       // Optionally redirect or reset form
       // navigate('/login'); // Example: Redirect after success
