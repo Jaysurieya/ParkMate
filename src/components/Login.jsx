@@ -3,6 +3,7 @@ import Background from './Background';
 import '../css/login.css';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Login() {
   const navigate = useNavigate();
@@ -26,17 +27,39 @@ function Login() {
   const handleSubmit = async () => {
     setIsLoading(true);
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsLoading(false);
-    console.log('Login attempted with:', formData);
-    alert(`Login attempted with:\nEmail: ${formData.email}\nPassword: ${formData.password.replace(/./g, '*')}`);
-    
-    // Show success overlay briefly
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 1000);
+   try {
+      // Send POST request using Axios
+      const response = await axios.post(
+        'http://localhost:5000/api/auth/login', // Replace with your actual API endpoint
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      console.log('login successful:', response.data);
+      
+      // Show success overlay briefly
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 1000);
+
+      navigate('/dashboard');
+  
+      // Optionally redirect or reset form
+      // navigate('/login'); // Example: Redirect after success
+      // setFormData({ email: '', password: '', confirmPassword: '', rememberMe: false }); // Reset form
+    } catch (error) {
+      console.error('Signup failed:', error.response?.data || error.message);
+      alert(`Signup failed: ${error.response?.data?.message || 'Server error'}`);
+    } finally {
+      setIsLoading(false); // Ensure loading state is reset
+    }
   };
+
 
   const handleGoogleLogin = () => {
     console.log('Google login initiated');
