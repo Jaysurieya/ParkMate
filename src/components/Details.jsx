@@ -14,25 +14,41 @@ export const Details = () => {
     const navigate = useNavigate();
 
     const [selectedGender, setSelectedGender] = useState(null);
-    // address, phone number, organisation, floors , parking slots with for floors 
-
     const [currentValue, setCurrentValue] = useState(null);
+    const [currentStep, setCurrentStep] = useState(1);
 
-  // This MUST be stable (useCallback if defined outside)
-  const handleSelection = async (value) => {
-    await console.log("Selection received in parent:", value);
-    setCurrentValue(value);
-  };
-    return(
+    const handleSelection = async (value) => {
+        await console.log("Selection received in parent:", value);
+        setCurrentValue(value);
+    };
+
+    // This function will be called when the final step is completed
+    const handleFinalStepCompleted = () => {
+        console.log("Final step completed - navigating to dashboard!");
+        navigate('/dashboard');
+    };
+
+    // Alternative navigation function (keeping for reference)
+    const handleDirectNavigation = () => {
+        console.log("Direct navigation called");
+        navigate('/dashboard');
+    };
+
+    return (
         <div>
             <DottedBackground>
-                <Stepper initialStep={1}>
+                <Stepper 
+                    initialStep={1} 
+                    onStepChange={(step) => setCurrentStep(step)}
+                    onFinalStepCompleted={handleFinalStepCompleted}
+                >
                     <Step onContinue={() => {
                         const nameInput = document.getElementById('name');
                         if (!nameInput.value.trim()) {
-                        alert("Please enter your name");
-                        return false; // Prevent continuation
+                            alert("Please enter your name");
+                            return false; 
                         }
+                        return true; // Explicitly return true on success
                     }}>
                         <div className="step-content">
                             <h3>Hey There 👋🏻!</h3>
@@ -45,9 +61,10 @@ export const Details = () => {
                     <Step onContinue={() => {
                         const addressInput = document.getElementById('address');
                         if (!addressInput.value.trim()) {
-                        alert("Please enter your Address");
-                        return false; // Prevent continuation
+                            alert("Please enter your Address");
+                            return false; 
                         }
+                        return true;
                     }}>
                         <div className="step-content">
                             <h3>Enter Your Location</h3>
@@ -62,9 +79,10 @@ export const Details = () => {
                     <Step onContinue={() => {
                         const phoneInput = document.getElementById('phone');
                         if (!phoneInput.value.trim()) {
-                        alert("Please enter your Phone number");
-                        return false; // Prevent continuation
+                            alert("Please enter your Phone number");
+                            return false; 
                         }
+                        return true;
                     }}>
                         <div className="step-content">
                             <h3>Enter Your Phone number</h3>
@@ -76,7 +94,13 @@ export const Details = () => {
                             />
                         </div>
                     </Step>
-                    <Step>
+                    <Step onContinue={() => {
+                        if (!currentValue) {
+                            alert("Please select the number of floors");
+                            return false;
+                        }
+                        return true;
+                    }}>
                         <div className="step-content">
                             <h3>Select the number of floors in your Parking</h3>
                             <ScrollPicker 
@@ -85,10 +109,8 @@ export const Details = () => {
                             />
                         </div>
                     </Step>
-                    <Step onContinue={() => {
-                        navigate('/dashboard')
-                        return true; 
-                        }}>
+                    {/* Final step - let the stepper handle completion naturally */}
+                    <Step>
                         <div className="step-content">
                             <h3>Enter Parking slots in each floor </h3>
                             <FloorInputComponent floorCount={currentValue} />
@@ -98,4 +120,4 @@ export const Details = () => {
             </DottedBackground>
         </div>
     );
-} 
+}
