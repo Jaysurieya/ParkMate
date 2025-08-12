@@ -6,6 +6,7 @@ import Login from './components/Login';
 import { Details } from './components/Details';
 import Dashboard from './components/Dashboard';
 import SidebarDemo from './components/Sidebar_layout';
+import ArduinoDataViewer from './components/ArduinoDataViewer';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
             <Route path='/details' element={<Details />} />
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/layout' element={<SidebarDemo />} />
+            <Route path='/arduino-data' element={<ArduinoDataViewer />} />
         </Routes>
     </div>
   );

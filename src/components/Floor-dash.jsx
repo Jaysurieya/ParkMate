@@ -1,15 +1,58 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./Card";
 import { Button } from "./Button";
 import { Car } from 'lucide-react';
 
-export default function ParkingSlots({ numberOfFloors = 3, slotsPerFloor = 20 }) {
-  const generateSlotNumber = (floor, slotIndex) => {
-    return `${floor}${String(slotIndex + 1).padStart(2, '0')}`;
+export default function ParkingSlots() {
+  const [parkingData, setParkingData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch parking setup details from backend
+  useEffect(() => {
+    const fetchParkingData = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/parking-setup/latest");
+        const data = await response.json();
+        setParkingData(data.setup);
+      } catch (error) {
+        console.error("Failed to fetch parking data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchParkingData();
+  }, []);
+
+  // Helper to get slot status from floorData if available, else random for demo
+  const getSlotStatus = (floorIdx, slotIdx) => {
+    if (
+      parkingData &&
+      parkingData.floorData &&
+      parkingData.floorData[floorIdx] &&
+      parkingData.floorData[floorIdx].slots &&
+      parkingData.floorData[floorIdx].slots[slotIdx]
+    ) {
+      return parkingData.floorData[floorIdx].slots[slotIdx].status || "available";
+    }
+    // fallback: random for demo
+    return Math.random() > 0.7 ? "occupied" : "available";
   };
 
-  const getSlotStatus = () => {
-    // Randomly assign some slots as occupied for demo purposes
-    return Math.random() > 0.7 ? 'occupied' : 'available';
+  if (loading) {
+    return <div className="text-center py-10">Loading parking slots...</div>;
+  }
+
+  if (!parkingData) {
+    return <div className="text-center py-10 text-red-500">No parking setup found.</div>;
+  }
+
+  const numberOfFloors = parkingData.floorCount;
+  const slotsPerFloor = parkingData.floorData && parkingData.floorData[0]?.slots?.length
+    ? parkingData.floorData[0].slots.length
+    : 0;
+
+  const generateSlotNumber = (floor, slotIndex) => {
+    return `${floor}${String(slotIndex + 1).padStart(2, '0')}`;
   };
 
   return (
@@ -38,16 +81,16 @@ export default function ParkingSlots({ numberOfFloors = 3, slotsPerFloor = 20 })
                   <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">
                     {Array.from({ length: slotsPerFloor }, (_, slotIndex) => {
                       const slotNumber = generateSlotNumber(floorNumber, slotIndex);
-                      const status = getSlotStatus();
-                      
+                      const status = getSlotStatus(floorIndex, slotIndex);
+
                       return (
                         <Button
                           key={slotNumber}
                           variant={status === 'occupied' ? 'destructive' : 'outline'}
                           className={`
                             h-16 w-full flex flex-col items-center justify-center text-xs font-semibold
-                            ${status === 'available' 
-                              ? 'hover:bg-green-50 hover:border-green-300 hover:text-green-700' 
+                            ${status === 'available'
+                              ? 'hover:bg-green-50 hover:border-green-300 hover:text-green-700'
                               : 'cursor-not-allowed opacity-60'
                             }
                           `}
@@ -59,7 +102,7 @@ export default function ParkingSlots({ numberOfFloors = 3, slotsPerFloor = 20 })
                       );
                     })}
                   </div>
-                  
+
                   {/* Legend */}
                   <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t">
                     <div className="flex items-center gap-2">
